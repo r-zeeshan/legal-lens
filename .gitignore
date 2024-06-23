@@ -3,4 +3,4 @@ cleaned_data.csv
 caselaw_embeddings.csv
 .env
 __pycache__
-nohup.out
+data.jsonl.xz

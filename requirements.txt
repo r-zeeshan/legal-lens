@@ -240,6 +240,7 @@ scipy==1.13.1
     # via
     #   scikit-learn
     #   sentence-transformers
+sentencepiece
 sentence-transformers==3.0.1
     # via -r requirements.in
 six==1.16.0

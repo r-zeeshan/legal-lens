@@ -4,3 +4,4 @@ caselaw_embeddings.csv
 .env
 __pycache__
 data.jsonl.xz
+requirements.in

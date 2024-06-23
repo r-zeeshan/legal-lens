@@ -2,10 +2,10 @@ import os
 from pinecone import Pinecone
 from sentence_transformers import SentenceTransformer
 from dotenv import load_dotenv
+import streamlit as st
 
-# Load environment variables
-load_dotenv()
-api_key = os.getenv('PINECONE_API_KEY')
+
+api_key = st.secrets["general"]["PINECONE_API_KEY"]
 
 pc = Pinecone(api_key=api_key)
 index_name = 'caselaw-index'

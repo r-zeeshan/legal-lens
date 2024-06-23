@@ -2,9 +2,7 @@ import os
 import streamlit as st
 import pandas as pd
 from pinecone import Pinecone, ServerlessSpec
-from dotenv import load_dotenv
 
-load_dotenv()
 api_key = st.secrets["general"]["PINECONE_API_KEY"]
 
 pc = Pinecone(api_key=api_key)

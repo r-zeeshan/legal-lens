@@ -1,2 +1,8 @@
 caselaw_data_illinois/
-database_setup.ipynb
+embeddings_setup.ipynb
+cleaned_data.csv
+pinecone_db.py
+caselaw_embeddings.csv
+.env
+__pycache__
+nohup.out

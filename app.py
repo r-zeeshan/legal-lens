@@ -6,8 +6,8 @@ from sentence_transformers import SentenceTransformer
 import gcsfs
 
 # Load secrets
-api_key = st.secrets["PINECONE_API_KEY"]
-gcs_bucket = st.secrets["GCS_BUCKET"]
+api_key = st.secrets["general"]["PINECONE_API_KEY"]
+gcs_bucket = st.secrets["general"]["GCS_BUCKET"]
 
 # Load dataset from Google Cloud Storage
 @st.cache_data
@@ -20,7 +20,6 @@ def load_dataset():
 
 df_cleaned = load_dataset()
 
-# Create a lookup dictionary for faster access
 case_lookup = {int(row['id']): row['majority_opinion'] for _, row in df_cleaned.iterrows()}
 
 # Initialize the Sentence-BERT model
@@ -77,4 +76,4 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-st.markdown('<div class="footer">Developed by [Your Name]</div>', unsafe_allow_html=True)
+st.markdown('<div class="footer">Developed by Zeeshan Hameed</div>', unsafe_allow_html=True)

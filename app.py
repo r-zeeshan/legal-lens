@@ -1,29 +1,29 @@
-import os
 import streamlit as st
 import pandas as pd
 from case_retrieval import retrieve_similar_cases
 from text_summarization import summarize_text
-from dotenv import load_dotenv
 from sentence_transformers import SentenceTransformer
 import gcsfs
 
-# Load environment variables
-load_dotenv()
-api_key = os.getenv('PINECONE_API_KEY')
-gcs_bucket = os.getenv('GCS_BUCKET')
+# Load secrets
+api_key = st.secrets["PINECONE_API_KEY"]
+gcs_bucket = st.secrets["GCS_BUCKET"]
 
+# Load dataset from Google Cloud Storage
 @st.cache_data
 def load_dataset():
     gcs_file_path = f'gs://{gcs_bucket}/cleaned_data.csv'
     fs = gcsfs.GCSFileSystem()
     df = pd.read_csv(gcs_file_path, storage_options={'gcsfs': fs})
-    df = df[['id', 'majority_opinion']]  
+    df = df[['id', 'majority_opinion']]  # Load only necessary columns
     return df
 
 df_cleaned = load_dataset()
 
+# Create a lookup dictionary for faster access
 case_lookup = {int(row['id']): row['majority_opinion'] for _, row in df_cleaned.iterrows()}
 
+# Initialize the Sentence-BERT model
 @st.cache_resource
 def load_model():
     return SentenceTransformer('all-MiniLM-L6-v2')
@@ -46,12 +46,12 @@ def get_case_summaries(input_text, top_k=5):
     
     return summaries
 
-
-### APP LAYOUT
-st.title('LegalLens - Precedence Lookup')
+# Streamlit app layout
+st.title('Legal Document Analysis')
 st.header('Find Similar Cases and Summarize Them')
 
 input_text = st.text_area('Enter case details:', height=200)
+
 top_k = st.slider('Number of similar cases to retrieve:', 1, 10, 5)
 
 # Button to trigger case retrieval and summarization
@@ -67,7 +67,7 @@ if st.button('Find Similar Cases'):
             with st.expander(f'Case {i+1} (ID: {case["case_id"]})'):
                 st.write(case['summary'])
 
-
+# Footer
 st.markdown(
     """
     <style>
@@ -77,4 +77,4 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-st.markdown('<div class="footer">Developed by Zeeshan Hameed</div>', unsafe_allow_html=True)
+st.markdown('<div class="footer">Developed by [Your Name]</div>', unsafe_allow_html=True)

@@ -6,21 +6,15 @@ from sentence_transformers import SentenceTransformer
 import gcsfs
 
 # Load secrets
-api_key = st.secrets["general"]["PINECONE_API_KEY"]
-gcs_bucket = st.secrets["general"]["GCS_BUCKET"]
+api_key = st.secrets["PINECONE_API_KEY"]
+gcs_bucket = st.secrets["GCS_BUCKET"]
 
 # Load dataset from Google Cloud Storage
 @st.cache_data
-def load_dataset():
+def load_dataset_chunked():
     gcs_file_path = f'gs://{gcs_bucket}/cleaned_data.csv'
     fs = gcsfs.GCSFileSystem()
-    df = pd.read_csv(gcs_file_path, storage_options={'gcsfs': fs})
-    df = df[['id', 'majority_opinion']]  # Load only necessary columns
-    return df
-
-df_cleaned = load_dataset()
-
-case_lookup = {int(row['id']): row['majority_opinion'] for _, row in df_cleaned.iterrows()}
+    return pd.read_csv(gcs_file_path, storage_options={'gcsfs': fs}, chunksize=10000)
 
 # Initialize the Sentence-BERT model
 @st.cache_resource
@@ -33,17 +27,24 @@ def get_case_summaries(input_text, top_k=5):
     similar_case_ids = retrieve_similar_cases(input_text, top_k=top_k)
     summaries = []
     
-    for case_id in similar_case_ids:
-        try:
-            case_id_int = int(float(case_id))
-            if case_id_int in case_lookup:
-                case_text = case_lookup[case_id_int]
-                summary = summarize_text(case_text)
-                summaries.append({'case_id': case_id_int, 'summary': summary})
-        except Exception as e:
-            st.error(f"Error processing case_id {case_id}: {e}")
+    df_iterator = load_dataset_chunked()
+    for df_chunk in df_iterator:
+        case_lookup = {int(row['id']): row['majority_opinion'] for _, row in df_chunk.iterrows()}
+        
+        for case_id in similar_case_ids:
+            try:
+                case_id_int = int(float(case_id))
+                if case_id_int in case_lookup:
+                    case_text = case_lookup[case_id_int]
+                    summary = summarize_text(case_text)
+                    summaries.append({'case_id': case_id_int, 'summary': summary})
+            except Exception as e:
+                st.error(f"Error processing case_id {case_id}: {e}")
+                
+        if len(summaries) >= top_k:
+            break
     
-    return summaries
+    return summaries[:top_k]
 
 # Streamlit app layout
 st.title('Legal Document Analysis')

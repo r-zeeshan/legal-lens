@@ -4,7 +4,6 @@ import requests
 from case_retrieval import retrieve_similar_cases
 from sentence_transformers import SentenceTransformer
 import gcsfs
-import html
 
 api_key = st.secrets["general"]["PINECONE_API_KEY"]
 gcs_bucket = st.secrets["general"]["GCS_BUCKET"]
@@ -45,7 +44,7 @@ def get_case_summaries(input_text, top_k=5):
             case_text = case_data['majority_opinion']
             summary = summarize_text(case_text)
             summaries.append({'case_id': case_id_int, 'summary': summary})
-            yield {'case_id': case_id_int, 'summary': summary, 'details': case_text}
+            yield {'case_id': case_id_int, 'summary': summary}
         except Exception as e:
             st.error(f"Error processing case_id {case_id}: {e}")
 
@@ -67,14 +66,7 @@ if st.button('Find Similar Cases'):
         
         for i, case in enumerate(get_case_summaries(input_text, top_k=top_k)):
             with summary_container:
-                with st.expander(f'Case {i+1} (ID: {case["case_id"]})'):
-                    st.write(case['summary'])
-                    case_details_html = html.escape(case['details']).replace("\n", "<br>")
-                    st.markdown(f'''
-                        <a href="javascript:void(0);" 
-                           onclick="window.open('data:text/html,<html><body><pre>{case_details_html}</pre></body></html>', '_blank');">
-                           Complete Details
-                        </a>''', unsafe_allow_html=True)
+                st.expander(f'Case {i+1} (ID: {case["case_id"]})').write(case['summary'])
 
 # Footer
 st.markdown(

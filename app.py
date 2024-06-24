@@ -38,7 +38,7 @@ def summarize_text(text):
     if response.status_code == 200:
         return response.json().get("summary")
     else:
-        st.error("Error in summarizing text")
+        st.error(response)
         return ""
 
 def get_case_summaries(input_text, top_k=5):

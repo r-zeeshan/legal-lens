@@ -29,6 +29,7 @@ def load_case_json(case_id):
     fs = gcsfs.GCSFileSystem()
     with fs.open(gcs_file_path, 'r') as f:
         case_data = json.load(f)
+    print(case_data)
     return case_data
 
 # Summarize text using the backend API

@@ -48,7 +48,8 @@ def get_case_summaries(input_text, top_k=5):
         except Exception as e:
             st.error(f"Error processing case_id {case_id}: {e}")
 
-# Streamlit app layout
+
+
 st.title('Legal Document Analysis')
 st.header('Find Similar Cases and Summarize Them')
 
@@ -56,7 +57,6 @@ input_text = st.text_area('Enter case details:', height=200)
 
 top_k = st.slider('Number of similar cases to retrieve:', 1, 10, 5)
 
-# Button to trigger case retrieval and summarization
 if st.button('Find Similar Cases'):
     if input_text.strip() == "":
         st.error("Please enter the case details.")
@@ -68,7 +68,6 @@ if st.button('Find Similar Cases'):
             with summary_container:
                 st.expander(f'Case {i+1} (ID: {case["case_id"]})').write(case['summary'])
 
-# Footer
 st.markdown(
     """
     <style>

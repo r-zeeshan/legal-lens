@@ -68,11 +68,11 @@ if st.button('Find Similar Cases'):
             with summary_container:
                 with st.expander(f'Case {i+1} (ID: {case["case_id"]})'):
                     st.write(case['summary'])
-                    html_link = f"""
-                    <a href="javascript:void(0);" onclick="window.open('data:text/html,<html><body><pre>{case["details"].replace("\n", "<br>")}</pre></body></html>', '_blank');">
-                    Complete Details</a>
-                    """
-                    st.markdown(html_link, unsafe_allow_html=True)
+                    st.markdown(f'''
+                        <a href="javascript:void(0);" 
+                           onclick="window.open('data:text/html,<html><body><pre>{case["details"].replace("\\n", "<br>")}</pre></body></html>', '_blank');">
+                           Complete Details
+                        </a>''', unsafe_allow_html=True)
 
 # Footer
 st.markdown(

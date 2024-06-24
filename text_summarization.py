@@ -18,3 +18,6 @@ def summarize_text(text):
     
     summary = tokenizer.decode(summary_ids[0], skip_special_tokens=True)
     return summary
+
+tokenizer.save_pretrained('t5-large-tokenizer')
+model.save_pretrained('t5-large-model')

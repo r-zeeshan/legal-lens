@@ -33,9 +33,12 @@ def load_case_json(case_id):
     return case_data
 
 # Summarize text using the backend API
+# Summarize text using the backend API
 def summarize_text(text):
     try:
-        response = requests.post(summarization_api_url, json={"text": text})
+        payload = {"text": text}
+        st.write("Sending request with payload:", payload)  # Debugging line
+        response = requests.post(summarization_api_url, json=payload)
         if response.status_code == 200:
             return response.json().get("summary")
         else:
@@ -44,6 +47,7 @@ def summarize_text(text):
     except Exception as e:
         st.error(f"Exception in summarizing text: {e}")
         return ""
+
 
 def get_case_summaries(input_text, top_k=5):
     similar_case_ids = retrieve_similar_cases(input_text, top_k=top_k)

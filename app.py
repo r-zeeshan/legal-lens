@@ -5,13 +5,6 @@ from case_retrieval import retrieve_similar_cases
 from sentence_transformers import SentenceTransformer
 import gcsfs
 
-# import os
-# from dotenv import load_dotenv
-# load_dotenv()
-# api_key = os.environ.get("PINECONE_API_KEY")
-# gcs_bucket = os.environ.get("GCS_BUCKET")
-# summarization_api_url = os.environ.get("API_URL")
-
 api_key = st.secrets["general"]["PINECONE_API_KEY"]
 gcs_bucket = st.secrets["general"]["GCS_BUCKET"]
 summarization_api_url = st.secrets["general"]["API_URL"]
@@ -29,7 +22,6 @@ def load_case_json(case_id):
     fs = gcsfs.GCSFileSystem()
     with fs.open(gcs_file_path, 'r') as f:
         case_data = json.load(f)
-    print(case_data)
     return case_data
 
 # Summarize text using the backend API
@@ -41,22 +33,17 @@ def summarize_text(text):
         st.error("Error in summarizing text")
         return ""
 
-
 def get_case_summaries(input_text, top_k=5):
     similar_case_ids = retrieve_similar_cases(input_text, top_k=top_k)
-    summaries = []
-
     for case_id in similar_case_ids:
         try:
             case_id_int = int(float(case_id))
             case_data = load_case_json(case_id_int)
             case_text = case_data['majority_opinion']
             summary = summarize_text(case_text)
-            summaries.append({'case_id': case_id_int, 'summary': summary})
+            yield {'case_id': case_id_int, 'summary': summary, 'full_text': case_text}
         except Exception as e:
             st.error(f"Error processing case_id {case_id}: {e}")
-
-    return summaries
 
 # Streamlit app layout
 st.title('Legal Document Analysis')
@@ -71,13 +58,16 @@ if st.button('Find Similar Cases'):
     if input_text.strip() == "":
         st.error("Please enter the case details.")
     else:
-        with st.spinner('Retrieving similar cases and generating summaries...'):
-            case_summaries = get_case_summaries(input_text, top_k=top_k)
-        st.success('Similar cases and summaries retrieved successfully!')
-        
-        for i, case in enumerate(case_summaries):
-            with st.expander(f'Case {i+1} (ID: {case["case_id"]})'):
-                st.write(case['summary'])
+        st.info('Retrieving similar cases and generating summaries...')
+        summary_container = st.container()
+
+        for i, case in enumerate(get_case_summaries(input_text, top_k=top_k)):
+            with summary_container:
+                expander = st.expander(f'Case {i+1} (ID: {case["case_id"]})')
+                expander.write(case['summary'])
+                if expander.button('Complete Details', key=f'button_{i}'):
+                    st.write(f'Complete Details for Case ID: {case["case_id"]}')
+                    st.write(case['full_text'])
 
 # Footer
 st.markdown(

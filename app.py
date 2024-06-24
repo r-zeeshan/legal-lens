@@ -1,15 +1,20 @@
 import streamlit as st
 import json
-import gcsfs
+import requests
 from case_retrieval import retrieve_similar_cases
-from text_summarization import summarize_text
 from sentence_transformers import SentenceTransformer
-from transformers import T5ForConditionalGeneration, T5Tokenizer
-import os
+import gcsfs
 
-# Load secrets
+# import os
+# from dotenv import load_dotenv
+# load_dotenv()
+# api_key = os.environ.get("PINECONE_API_KEY")
+# gcs_bucket = os.environ.get("GCS_BUCKET")
+# summarization_api_url = os.environ.get("API_URL")
+
 api_key = st.secrets["PINECONE_API_KEY"]
 gcs_bucket = st.secrets["GCS_BUCKET"]
+summarization_api_url = st.secrets["API_URL"]
 
 # Initialize the Sentence-BERT model
 @st.cache_resource
@@ -18,6 +23,7 @@ def load_model():
 
 model = load_model()
 
+# Load specific case JSON from Google Cloud Storage
 def load_case_json(case_id):
     gcs_file_path = f'gs://{gcs_bucket}/cases//case_{case_id}.json'
     fs = gcsfs.GCSFileSystem()
@@ -25,43 +31,14 @@ def load_case_json(case_id):
         case_data = json.load(f)
     return case_data
 
-# Load the T5 model and tokenizer from Google Cloud Storage
-@st.cache_resource
-def load_summarization_model():
-    fs = gcsfs.GCSFileSystem()
-    
-    # Download and cache the tokenizer
-    tokenizer_path = 't5-large-tokenizer'
-    if not os.path.exists(tokenizer_path):
-        fs.get(f'gs://{gcs_bucket}/models/{tokenizer_path}', tokenizer_path)
-    tokenizer = T5Tokenizer.from_pretrained(tokenizer_path)
-    
-    # Download and cache the model
-    model_path = 't5-large-model'
-    if not os.path.exists(model_path):
-        fs.get(f'gs://{gcs_bucket}/models/{model_path}', model_path)
-    model = T5ForConditionalGeneration.from_pretrained(model_path)
-    
-    return tokenizer, model
-
-tokenizer, t5_model = load_summarization_model()
-
+# Summarize text using the backend API
 def summarize_text(text):
-    """
-    Summarize the given text using the T5 model.
-    
-    Parameters:
-    text (str): The text to summarize.
-    
-    Returns:
-    str: The generated summary.
-    """
-    inputs = tokenizer.encode("summarize: " + text, return_tensors='pt', max_length=512, truncation=True)
-    
-    summary_ids = t5_model.generate(inputs, max_length=150, min_length=40, length_penalty=2.0, num_beams=4, early_stopping=True)
-    
-    summary = tokenizer.decode(summary_ids[0], skip_special_tokens=True)
-    return summary
+    response = requests.post(summarization_api_url, json={"text": text})
+    if response.status_code == 200:
+        return response.json().get("summary")
+    else:
+        st.error("Error in summarizing text")
+        return ""
 
 def get_case_summaries(input_text, top_k=5):
     similar_case_ids = retrieve_similar_cases(input_text, top_k=top_k)

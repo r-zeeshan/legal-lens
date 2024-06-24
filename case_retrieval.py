@@ -2,6 +2,10 @@ from pinecone import Pinecone
 from sentence_transformers import SentenceTransformer
 import streamlit as st
 
+# import os
+# from dotenv import load_dotenv
+# load_dotenv()
+# api_key = os.environ.get('PINECONE_API_KEY')
 
 api_key = st.secrets["general"]["PINECONE_API_KEY"]
 

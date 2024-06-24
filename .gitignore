@@ -5,6 +5,5 @@ caselaw_embeddings.csv
 __pycache__
 data.jsonl.xz
 requirements.in
-text_summarization.py
 t5-large-model
 t5-large-tokenizer

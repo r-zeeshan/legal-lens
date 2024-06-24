@@ -1,7 +1,5 @@
-import os
 from pinecone import Pinecone
 from sentence_transformers import SentenceTransformer
-from dotenv import load_dotenv
 import streamlit as st
 
 

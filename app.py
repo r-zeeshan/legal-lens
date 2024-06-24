@@ -12,9 +12,9 @@ import gcsfs
 # gcs_bucket = os.environ.get("GCS_BUCKET")
 # summarization_api_url = os.environ.get("API_URL")
 
-api_key = st.secrets["PINECONE_API_KEY"]
-gcs_bucket = st.secrets["GCS_BUCKET"]
-summarization_api_url = st.secrets["API_URL"]
+api_key = st.secrets["general"]["PINECONE_API_KEY"]
+gcs_bucket = st.secrets["general"]["GCS_BUCKET"]
+summarization_api_url = st.secrets["general"]["API_URL"]
 
 # Initialize the Sentence-BERT model
 @st.cache_resource

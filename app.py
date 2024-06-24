@@ -4,6 +4,7 @@ import requests
 from case_retrieval import retrieve_similar_cases
 from sentence_transformers import SentenceTransformer
 import gcsfs
+import html
 
 api_key = st.secrets["general"]["PINECONE_API_KEY"]
 gcs_bucket = st.secrets["general"]["GCS_BUCKET"]
@@ -68,9 +69,10 @@ if st.button('Find Similar Cases'):
             with summary_container:
                 with st.expander(f'Case {i+1} (ID: {case["case_id"]})'):
                     st.write(case['summary'])
+                    case_details_html = html.escape(case['details']).replace("\n", "<br>")
                     st.markdown(f'''
                         <a href="javascript:void(0);" 
-                           onclick="window.open('data:text/html,<html><body><pre>{case["details"].replace("\\n", "<br>")}</pre></body></html>', '_blank');">
+                           onclick="window.open('data:text/html,<html><body><pre>{case_details_html}</pre></body></html>', '_blank');">
                            Complete Details
                         </a>''', unsafe_allow_html=True)
 

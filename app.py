@@ -34,11 +34,15 @@ def load_case_json(case_id):
 
 # Summarize text using the backend API
 def summarize_text(text):
-    response = requests.post(summarization_api_url, json={"text": text})
-    if response.status_code == 200:
-        return response.json().get("summary")
-    else:
-        st.error(response)
+    try:
+        response = requests.post(summarization_api_url, json={"text": text})
+        if response.status_code == 200:
+            return response.json().get("summary")
+        else:
+            st.error(f"Error in summarizing text: {response.status_code}, {response.text}")
+            return ""
+    except Exception as e:
+        st.error(f"Exception in summarizing text: {e}")
         return ""
 
 def get_case_summaries(input_text, top_k=5):

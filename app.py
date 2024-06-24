@@ -35,13 +35,16 @@ def summarize_text(text):
 
 def get_case_summaries(input_text, top_k=5):
     similar_case_ids = retrieve_similar_cases(input_text, top_k=top_k)
+    summaries = []
+
     for case_id in similar_case_ids:
         try:
             case_id_int = int(float(case_id))
             case_data = load_case_json(case_id_int)
             case_text = case_data['majority_opinion']
             summary = summarize_text(case_text)
-            yield {'case_id': case_id_int, 'summary': summary, 'full_text': case_text}
+            summaries.append({'case_id': case_id_int, 'summary': summary})
+            yield {'case_id': case_id_int, 'summary': summary, 'details': case_text}
         except Exception as e:
             st.error(f"Error processing case_id {case_id}: {e}")
 
@@ -60,14 +63,12 @@ if st.button('Find Similar Cases'):
     else:
         st.info('Retrieving similar cases and generating summaries...')
         summary_container = st.container()
-
+        
         for i, case in enumerate(get_case_summaries(input_text, top_k=top_k)):
             with summary_container:
-                expander = st.expander(f'Case {i+1} (ID: {case["case_id"]})')
-                expander.write(case['summary'])
-                if expander.button('Complete Details', key=f'button_{i}'):
-                    st.write(f'Complete Details for Case ID: {case["case_id"]}')
-                    st.write(case['full_text'])
+                with st.expander(f'Case {i+1} (ID: {case["case_id"]})'):
+                    st.write(case['summary'])
+                    st.markdown(f'<a href="javascript:void(0);" onclick="window.open(\'data:text/html,<html><body><pre>{case["details"].replace("\n", "<br>")}</pre></body></html>\', \'_blank\');">Complete Details</a>', unsafe_allow_html=True)
 
 # Footer
 st.markdown(

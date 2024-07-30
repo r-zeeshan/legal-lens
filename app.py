@@ -24,6 +24,15 @@ model = load_model()
 
 # Load specific case JSON from Google Cloud Storage
 def load_case_json(case_id):
+    """
+    Load case data from a JSON file.
+
+    Args:
+        case_id (str): The ID of the case.
+
+    Returns:
+        dict: The case data loaded from the JSON file.
+    """
     gcs_file_path = f'gs://{gcs_bucket}/cases//case_{case_id}.json'
     fs = gcsfs.GCSFileSystem()
     with fs.open(gcs_file_path, 'r') as f:

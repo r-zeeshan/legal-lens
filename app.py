@@ -5,6 +5,7 @@ from case_retrieval import retrieve_similar_cases
 from sentence_transformers import SentenceTransformer
 import gcsfs
 
+### Getting the API KEYS from the environment
 api_key = st.secrets["general"]["PINECONE_API_KEY"]
 gcs_bucket = st.secrets["general"]["GCS_BUCKET"]
 summarization_api_url = st.secrets["general"]["API_URL"]

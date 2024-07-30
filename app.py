@@ -40,6 +40,22 @@ def summarize_text(text):
         return ""
 
 def get_case_summaries(input_text, top_k=5):
+    """
+    Retrieves case summaries for a given input text.
+
+    Args:
+        input_text (str): The input text for which case summaries are to be retrieved.
+        top_k (int, optional): The number of top case summaries to retrieve. Defaults to 5.
+
+    Yields:
+        dict: A dictionary containing the case ID and its corresponding summary.
+
+    Raises:
+        Exception: If there is an error processing a case ID.
+
+    Returns:
+        None
+    """
     similar_case_ids = retrieve_similar_cases(input_text, top_k=top_k)
     summaries = []
 

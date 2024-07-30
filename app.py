@@ -10,12 +10,12 @@ api_key = st.secrets["general"]["PINECONE_API_KEY"]
 gcs_bucket = st.secrets["general"]["GCS_BUCKET"]
 summarization_api_url = st.secrets["general"]["API_URL"]
 
-# Default starting text
+### A default starting string
 default_text = """
 The plaintiff, John Doe, alleges that the defendant, Jane Smith, breached a contract by failing to deliver goods as agreed upon in a sales contract dated January 15, 2020. The plaintiff seeks damages for the loss incurred due to the non-delivery of goods. The key issues involve the interpretation of contract terms and the determination of whether the defendant's failure to deliver constitutes a breach of contract under the applicable law.
 """
 
-# Initialize the Sentence-BERT model
+# Initialize the Sentence-BERT model cached
 @st.cache_resource
 def load_model():
     return SentenceTransformer('all-MiniLM-L6-v2')

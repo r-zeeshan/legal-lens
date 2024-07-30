@@ -41,6 +41,19 @@ def load_case_json(case_id):
 
 # Summarize text using the backend API
 def summarize_text(text):
+    """
+    Summarizes the given text using a summarization API.
+
+    Args:
+        text (str): The text to be summarized.
+
+    Returns:
+        str: The summarized text.
+
+    Raises:
+        None
+
+    """
     response = requests.post(summarization_api_url, json={"text": text})
     if response.status_code == 200:
         return response.json().get("summary")
